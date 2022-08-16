@@ -1,0 +1,65 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  GIT_STRATEGY: clone
+
+.docker:
+  # https://gitlab.com/gitlab-com/support-forum/issues/4416#note_199451215
+  image: docker:18.09.7
+  services:
+    - docker:18.09.7-dind
+  tags:
+    - hub-belen
+  before_script:
+    - echo -n $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
+   
+build latest:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+      changes:
+        - "docs/docs/**/*"
+        - "docs/website/**/*"
+        - Dockerfile
+    - when: never
+  extends:
+    - .docker
+  script:
+    - docker version
+    - export LATEST_TAG="$CI_REGISTRY_IMAGE/docs:latest"
+    # # https://blog.callr.tech/building-docker-images-with-gitlab-ci-best-practices/
+    - docker pull $LATEST_TAG || true
+    - >
+      docker build
+      --pull
+      --cache-from $LATEST_TAG
+      --tag $LATEST_TAG
+      .
+    - docker push $LATEST_TAG
+    - echo "PUSH READY"
+
+publish:
+  stage: deploy
+  extends:
+    - .docker
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+      changes:
+        - "docs/docs/**/*"
+        - "docs/website/**/*"
+        - Dockerfile
+    - when: never
+  variables:
+    GIT_STRATEGY: none
+  script:
+    # https://gitlab.com/gitlab-examples/ssh-private-key/-/blob/master/.gitlab-ci.yml
+    - 'which ssh-agent || ( apk add --no-cache openssh-client )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan expedientes.siu.edu.ar >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - ssh adminsiu@expedientes.siu.edu.ar "/home/adminsiu/scripts/expedientes-docker.sh hub.siu.edu.ar:5005/siu/expedientes/docs"

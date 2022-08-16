@@ -1,0 +1,223 @@
+version: '3.8'
+services:
+  memcached-server:
+    image: bitnami/memcached:1.6.6
+    #environment: 
+    #   MEMCACHED_CACHE_SIZE: 64 # size en megas
+    networks:
+      internal:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 70M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 4
+        window: 120s
+  idp:
+    image: hub.siu.edu.ar:5005/siu/expedientes/arai-usuarios/idp:v3.1.10
+    env_file: 
+      - ./usuarios.env
+      - ./usuarios.idp.env
+    secrets:
+      - usuarios_db_pass
+      - usuarios_ldap_admin_pass
+      - usuarios_pass_salt
+      - usuarios_idp_simplesaml_admin
+      - source: usuarios_idp_saml_key
+        target: /usr/local/app/idp/config/simplesamlphp/certificado_idp.key
+      - source: usuarios_idp_oidc_key
+        target: /usr/local/app/idp/config/simplesamlphp/oidc_module.pem
+    configs:
+      - source: usuarios_idp_saml_cert
+        target: /usr/local/app/idp/config/simplesamlphp/certificado_idp.crt
+      - source: usuarios_idp_oidc_cert
+        target: /usr/local/app/idp/config/simplesamlphp/oidc_module.crt
+    volumes:
+      - usuarios_assets:/usr/local/app/resources
+    healthcheck:
+      test: ["CMD-SHELL", "(nc -z localhost 80) || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+    deploy:
+      mode: replicated
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 25M
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 4
+        window: 120s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.idp.entrypoints=web-secured"
+        - "traefik.http.routers.idp.rule=Host(`uunn.local`) && PathPrefix(`/idp`)"
+        - "traefik.http.routers.idp.tls=true"
+        - "traefik.http.routers.idp.service=idp"
+        - "traefik.http.services.idp.loadbalancer.server.port=80"
+        - "traefik.http.routers.idp.middlewares=security-headers@file"
+        - "traefik.http.routers.idp-resources.entrypoints=web-secured"
+        - "traefik.http.routers.idp-resources.rule=Host(`uunn.local`) && PathPrefix(`/resources`)"
+        - "traefik.http.routers.idp-resources.tls=true"
+        - "traefik.http.routers.idp-resources.service=idp-resources"
+        - "traefik.http.services.idp-resources.loadbalancer.server.port=80"
+    networks:
+      internal:
+      traefik-public:
+      red-siu:
+
+  api:
+    image: hub.siu.edu.ar:5005/siu/expedientes/arai-usuarios/api:v3.1.10
+    env_file: 
+      - ./usuarios.env
+      - ./usuarios.api.env
+    secrets:
+      - usuarios_db_pass
+      - usuarios_ldap_admin_pass
+      - usuarios_pass_salt
+      - usuarios_api_users
+    volumes:
+      - usuarios_assets:/usr/local/app/resources
+    healthcheck:
+      test: ["CMD-SHELL", "(nc -z localhost 80) || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+    deploy:
+      mode: replicated
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 10M
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 4
+        window: 120s
+      # labels:
+      #   - "traefik.enable=true"
+      #   - "traefik.http.routers.api-usuarios.entrypoints=web-secured"
+      #   - "traefik.http.routers.api-usuarios.rule=Host(`uunn.local`) && PathPrefix(`/api-usuarios`)"
+      #   - "traefik.http.routers.api-usuarios.tls=true"
+      #   - "traefik.http.services.api-usuarios.loadbalancer.server.port=80"
+      #   - "traefik.http.middlewares.api-usuarios-strip.stripprefix.prefixes=/api-usuarios"
+      #   - "traefik.http.middlewares.api-usuarios-add.addprefix.prefix=/api"
+      #   - "traefik.http.routers.api-usuarios.middlewares=api-usuarios-strip,api-usuarios-add,security-headers@file"
+    networks:
+      traefik-public:
+      red-siu:
+        aliases:
+          - usuarios-api
+
+  idm:
+    image: hub.siu.edu.ar:5005/siu/expedientes/arai-usuarios/idm:v3.1.10
+    env_file: 
+      - ./usuarios.env
+    configs:
+      - source: usuarios_idp_saml_cert
+        target: /usr/local/app/idm/instalacion/idp.crt
+    secrets:
+      - usuarios_db_pass
+      - usuarios_ldap_admin_pass
+      - usuarios_pass_salt
+      - usuarios_idp_simplesaml_admin
+    volumes:
+      - usuarios_assets:/usr/local/app/resources
+    healthcheck:
+      #test: ["CMD-SHELL", "(nc -z localhost 80 && nc -z db-siu 5432) || exit 1"]
+      test: ["CMD-SHELL", "(nc -z localhost 80) || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+    deploy:
+      mode: replicated
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 25M
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 4
+        window: 120s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.usuarios.entrypoints=web-secured"
+        - "traefik.http.routers.usuarios.rule=Host(`uunn.local`) && PathPrefix(`/usuarios`)"
+        - "traefik.http.routers.usuarios.tls=true"
+        - "traefik.http.routers.usuarios.service=usuarios"
+        - "traefik.http.services.usuarios.loadbalancer.server.port=80"
+        - "traefik.http.routers.usuarios_toba.entrypoints=web-secured"
+        - "traefik.http.routers.usuarios_toba.rule=Host(`uunn.local`) && PathPrefix(`/toba_gestion`)"
+        - "traefik.http.routers.usuarios_toba.tls=true"
+        - "traefik.http.routers.usuarios_toba.service=usuarios_toba"
+        - "traefik.http.services.usuarios_toba.loadbalancer.server.port=80"
+        - "traefik.http.routers.usuarios.middlewares=security-headers@file"
+        - "traefik.http.routers.usuarios_toba.middlewares=security-headers@file"
+    networks:
+      internal:
+      traefik-public:
+      red-siu:
+
+configs:
+  usuarios_idp_saml_cert:
+    external: true
+  usuarios_idp_oidc_cert:
+    external: true
+
+volumes:
+  usuarios_assets:
+# usuarios_assets: # ejemplo con nfs
+#   driver: local
+#   driver_opts:
+#     type: nfs
+#     o: nfsvers=4,addr=170.210.46.29,rw
+#     device: ":/var/nfsroot/usuarios"
+
+secrets:
+  usuarios_api_users:
+    external: true
+  usuarios_idp_oidc_key:
+    external: true
+  usuarios_idp_saml_key:
+    external: true
+  usuarios_db_pass:
+    external: true
+  usuarios_ldap_admin_pass:
+    external: true
+  usuarios_pass_salt:
+    external: true
+  usuarios_idp_simplesaml_admin:
+    external: true
+
+networks:
+  internal:
+  traefik-public:
+    external: true
+  red-siu:
+    external: true

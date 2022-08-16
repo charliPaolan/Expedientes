@@ -1,0 +1,28 @@
+# Entry Usuarios: ou=usuarios,dc=unx,dc=edu,dc=ar
+dn: ou=usuarios,dc=unx,dc=edu,dc=ar
+changetype: add
+objectclass: top
+objectclass: organizationalUnit
+ou: usuarios
+
+# Entry Usuarios Cuentas: ou=usuariosCuentas,dc=unx,dc=edu,dc=ar
+dn: ou=usuariosCuentas,dc=unx,dc=edu,dc=ar
+changetype: add
+objectclass: top
+objectclass: organizationalUnit
+ou: usuariosCuentas
+
+# Entry Grupos: ou=groups,dc=unx,dc=edu,dc=ar
+dn: ou=groups,dc=unx,dc=edu,dc=ar
+changetype: add
+objectclass: top
+objectclass: organizationalUnit
+ou: groups
+
+# Subgrupo devs: cn=devs,ou=groups,dc=unx,dc=edu,dc=ar
+dn: cn=devs,ou=groups,dc=unx,dc=edu,dc=ar
+changetype: add
+objectclass: groupofnames
+cn: devs
+member: cn=admin,dc=unx,dc=edu,dc=ar
+

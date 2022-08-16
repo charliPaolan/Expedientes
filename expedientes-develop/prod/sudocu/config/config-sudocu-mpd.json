@@ -1,0 +1,24 @@
+{
+  "server": {
+    "host": "mpd",
+    "port": "3010",
+    "modName": "mpd",
+    "secure": false,
+    "clusters": false,
+    "apiUrl": "https://uunn.local/sudocu/api",
+    "urlHome": "https://uunn.local/sudocu",
+    "socketUrl": "https://uunn.local/socket.gestion",
+    "socketPath": "/sudocu/socket.io",
+    "socketSecure": false,
+    "livereload": "35710"
+  },
+  "cookiesOptions": {
+    "domain": "uunn.local",
+    "secure": false
+  },
+  "crts": {
+    "ca": "/etc/ssl/crt/sudocu.ca-bundle",
+    "cert": "/etc/ssl/crt/",
+    "key": "/etc/ssl/crt/"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "version-1.0.0-docs": {
+    "Introducción": [
+      "version-1.0.0-arquitectura",
+      "version-1.0.0-instalacion",
+      "version-1.0.0-servicios-base"
+    ],
+    "Despliegue en Docker Swarm": [
+      "version-1.0.0-repo-config",
+      "version-1.0.0-redes",
+      "version-1.0.0-logs",
+      "version-1.0.0-arai",
+      "version-1.0.0-sudocu"
+    ],
+    "CHANGELOG": [
+      "version-1.0.0-changelog"
+    ]
+  }
+}

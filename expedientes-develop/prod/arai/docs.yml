@@ -1,0 +1,145 @@
+version: '3.8'
+services:
+  api:
+    image: hub.siu.edu.ar:5005/siu/expedientes/docs-api:1.3.3
+    env_file: 
+      - ./docs.env
+#    environment:
+#      - BETA_STAMPER_ACTIVO=1
+#      - STAMPER_PARAMS={base_uri:'stamper:8080'}
+    secrets:
+      - docs_api_pass
+      - docs_db_pass
+      - docs_repo_pass
+      - docs_conexion_usuarios
+      - docs_conexion_sudocu
+    healthcheck:
+      test: ["CMD-SHELL", "(nc -z localhost 80) || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+    networks:
+      traefik-public:
+      red-siu:
+        aliases:
+          - docs-api
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 50M
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 4
+        window: 120s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.docs.entrypoints=web-secured"
+        - "traefik.http.routers.docs.rule=Host(`uunn.local`) && ( PathPrefix(`/docs/rest/frontend`) || Path(`/docs/firmador.php`) )"
+        - "traefik.http.routers.docs.tls=true"
+        - "traefik.http.services.docs.loadbalancer.server.port=80"
+        - "traefik.http.routers.docs.middlewares=security-headers@file"
+
+  docs-worker:
+    image: hub.siu.edu.ar:5005/siu/expedientes/docs-api:1.3.3
+    env_file: 
+      - ./docs.env
+    secrets:
+      - docs_api_pass
+      - docs_db_pass
+      - docs_repo_pass
+      - docs_conexion_usuarios
+      - docs_conexion_sudocu
+    entrypoint:
+      - /entrypoint.sh
+      - --reconfigure
+      - --no-validar-servicios
+      - --worker-mode
+    networks:
+      red-siu:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 20M
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 4
+        window: 120s
+
+#   stamper:
+#     image: ungs/sudocu-estampador:0.0.7
+#     networks:
+#       red-siu:
+#     env_file:
+#       - ./docs_stamper.env
+#     secrets:
+#       - source: docs_stamper_keystore
+#         target: /app/classes/config/keystore.p12
+      # Variable de entorno TZ
+#     environment:
+#       TZ: "America/Buenos_Aires"
+      # Entrypoint
+#     entrypoint: "/app/docs_stamper_entrypoint.sh"
+#     configs:
+#       - source: docs_stamper_config
+#         target: /app/classes/config/application.properties
+         #Entrypoint provisorio
+#       - source: docs_stamper_entrypoint
+#         target: /app/docs_stamper_entrypoint.sh
+#         mode: 0755
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: '0.25'
+#           memory: 512M
+#         reservations:
+#           cpus: '0.1'
+#           memory: 20M
+#       mode: replicated
+#       replicas: 1
+#       restart_policy:
+#         condition: any
+#         delay: 10s
+#         max_attempts: 4
+#         window: 120s
+
+#configs:
+  #docs_stamper_config:
+  #  file: ./application.properties
+  #docs_stamper_entrypoint:
+  #  file: ./docs_stamper_entrypoint.sh
+
+    
+secrets:
+  docs_api_pass:
+    external: true
+  docs_db_pass:
+    external: true
+  docs_repo_pass:
+    external: true
+  docs_conexion_usuarios:
+    external: true
+  docs_conexion_sudocu:
+    external: true
+#  docs_stamper_keystore:
+#    external: true
+
+networks:
+  traefik-public:
+    external: true
+  red-siu:
+    external: true

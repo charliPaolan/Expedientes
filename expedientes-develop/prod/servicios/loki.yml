@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  loki:
+    image: grafana/loki:2.3.0
+    command: -config.file=/etc/loki/local-config.yaml -server.path-prefix=/loki/
+    volumes:
+      - type: volume
+        source: log-data
+        target: /loki
+      - type: bind
+        source: ./config/loki-docker-config.yaml
+        target: /etc/loki/local-config.yaml
+    networks:
+      - traefik-public
+      - loki
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.loki.entrypoints=web-secured"
+        - "traefik.http.routers.loki.rule=Host(`uunn.local`) && PathPrefix(`/loki`)"
+        - "traefik.http.routers.loki.tls=true"
+        - "traefik.http.middlewares.loki-auth.basicauth.users=loki:$$apr1$$4y3FGRIr$$uI4zvph0YyPN/oa08enf/0"
+        - "traefik.http.routers.loki.middlewares=loki-auth@docker"
+        - "traefik.http.services.loki.loadbalancer.server.port=3100" 
+
+  grafana:
+    image: grafana/grafana:master
+    secrets:
+      - grafana_pass
+    environment:
+      - 'GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/metricas/'
+      - 'GF_SERVER_SERVE_FROM_SUB_PATH=true'
+      - 'GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/grafana_pass'
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - traefik-public
+      - loki
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.grafana.entrypoints=web-secured"
+        - "traefik.http.routers.grafana.rule=Host(`uunn.local`) && PathPrefix(`/metricas`)"
+        - "traefik.http.routers.grafana.tls=true"
+        # adicionar las redes permitidas para acceder a este servicio
+        - "traefik.http.middlewares.grafana-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32"
+        - "traefik.http.routers.grafana.middlewares=security-headers@file,grafana-ipwhitelist"
+        - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+volumes:
+  log-data:
+  grafana-data:
+
+networks:
+  loki:
+  traefik-public:
+    external: true
+
+secrets:
+  grafana_pass:
+    external: true

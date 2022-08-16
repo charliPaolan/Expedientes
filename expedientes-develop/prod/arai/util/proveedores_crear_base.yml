@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  crear-base:
+    image: hub.siu.edu.ar:5005/siu/expedientes/proveedores-api:1.0.1
+    env_file: 
+      - ../proveedores.env
+    secrets:
+      - proveedores_db_pass
+      - proveedores_api_pass
+    entrypoint: # --db-initialize --create-db también crea la db
+      - /entrypoint.sh
+      - --reconfigure
+      - --db-initialize
+    networks:
+      red-siu:
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: none
+
+secrets:
+  proveedores_db_pass:
+    external: true
+  proveedores_api_pass:
+    external: true
+    
+networks:
+  red-siu:
+    external: true

@@ -1,0 +1,11 @@
+.idea/*
+*.swp
+.DS_Store
+secrets.sh
+docs_stamper.env
+*.swp
+sudocu-api-server-secret.json
+proveedores-secrets.sh
+prod/arai/certs/*
+prod/servicios/certs/*
+prod/arai/util/files/*

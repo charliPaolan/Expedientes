@@ -1,0 +1,245 @@
+version: '3.8'
+services:
+  # FRONTENDS
+  gestion:
+    image: ungs/sudocu-gestion:1.3.9
+    #env_file:
+    #  - sudocu.env
+    environment:
+      TZ: "America/Buenos_Aires"
+    # REEMPLAZAR POR VARIABLES DE ENTORNO
+    configs:
+      - source: gestion_config
+        target: /app/config.json
+    # Descomentar directorio modulos para incorporar documentos particulares
+    #volumes:
+    #  - "./modulos:/app/src/modulos"
+    networks:
+      traefik-public:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.sudocu-gestion.entrypoints=web-secured"
+        - "traefik.http.routers.sudocu-gestion.rule=Host(`uunn.local`) && PathPrefix(`/sudocu/gestion`)"
+        - "traefik.http.routers.sudocu-gestion.middlewares=sudocu-gestion-redirectregex,sudocu-gestion-stripprefix,security-headers@file"
+        - "traefik.http.middlewares.sudocu-gestion-stripprefix.stripprefix.prefixes=/sudocu/gestion"
+        - "traefik.http.middlewares.sudocu-gestion-redirectregex.redirectregex.regex=^https://uunn.local/sudocu/gestion$$"
+        - "traefik.http.middlewares.sudocu-gestion-redirectregex.redirectregex.replacement=https://uunn.local/sudocu/gestion/"
+        - "traefik.http.routers.sudocu-gestion.tls=true"
+        - "traefik.http.routers.sudocu-gestion.service=sudocu-gestion"
+        - "traefik.http.services.sudocu-gestion.loadbalancer.server.port=3020"
+
+  login:
+    image: ungs/sudocu-login:1.3.9
+    #env_file:
+    #  - sudocu.env
+    environment:
+      TZ: "America/Buenos_Aires"
+    # REEMPLAZAR POR VARIABLES DE ENTORNO
+    configs:
+      - source: login_config
+        target: /app/config.json
+    networks:
+      traefik-public:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.sudocu-login.entrypoints=web-secured"
+        - "traefik.http.routers.sudocu-login.rule=Host(`uunn.local`) && PathPrefix(`/sudocu`)"
+        - "traefik.http.routers.sudocu-login.middlewares=sudocu-login-redirectregex,sudocu-login-stripprefix,security-headers@file"
+        - "traefik.http.middlewares.sudocu-login-stripprefix.stripprefix.prefixes=/sudocu"
+        #- "traefik.http.middlewares.sudocu-login-stripprefix.stripprefix.forceslash=false"
+        - "traefik.http.middlewares.sudocu-login-redirectregex.redirectregex.regex=^https://uunn.local/sudocu$$"
+        #- "traefik.http.middlewares.sudocu-login-redirectregex.redirectregex.permanent=true"
+        - "traefik.http.middlewares.sudocu-login-redirectregex.redirectregex.replacement=https://uunn.local/sudocu/"
+        - "traefik.http.routers.sudocu-login.tls=true"
+        - "traefik.http.routers.sudocu-login.service=sudocu-login"
+        - "traefik.http.services.sudocu-login.loadbalancer.server.port=4000"
+
+  mpd:
+    image: ungs/sudocu-mpd:1.3.9
+    #env_file:
+    #  - sudocu.env
+    environment:
+      TZ: "America/Buenos_Aires"
+    # REEMPLAZAR POR VARIABLES DE ENTORNO
+    configs:
+      - source: mpd_config
+        target: /app/config.json
+    networks:
+      traefik-public:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.sudocu-mpd.entrypoints=web-secured"
+        - "traefik.http.routers.sudocu-mpd.rule=Host(`uunn.local`) && PathPrefix(`/sudocu/mpd`)"
+        - "traefik.http.routers.sudocu-mpd.middlewares=sudocu-mpd-redirectregex,sudocu-mpd-stripprefix,security-headers@file"
+        - "traefik.http.middlewares.sudocu-mpd-stripprefix.stripprefix.prefixes=/sudocu/mpd"
+        - "traefik.http.middlewares.sudocu-mpd-redirectregex.redirectregex.regex=^https://uunn.local/sudocu/mpd$$"
+        - "traefik.http.middlewares.sudocu-mpd-redirectregex.redirectregex.replacement=https://uunn.local/sudocu/mpd/"
+        - "traefik.http.routers.sudocu-mpd.tls=true"
+        - "traefik.http.routers.sudocu-mpd.service=sudocu-mpd"
+        - "traefik.http.services.sudocu-mpd.loadbalancer.server.port=3010"
+
+  mpc:
+    image: ungs/sudocu-mpc:1.3.9
+    #env_file:
+    #  - sudocu.env
+    environment:
+      TZ: "America/Buenos_Aires"
+    # REEMPLAZAR POR VARIABLES DE ENTORNO
+    configs:
+      - source: mpc_config
+        target: /app/config.json
+    networks:
+      traefik-public:
+    deploy:
+      #placement:
+      #  constraints:
+      #    - node.role == worker
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.sudocu-mpc.entrypoints=web-secured"
+        - "traefik.http.routers.sudocu-mpc.rule=Host(`uunn.local`) && PathPrefix(`/sudocu/mpc`)"
+        - "traefik.http.routers.sudocu-mpc.middlewares=sudocu-mpc-redirectregex,sudocu-mpc-stripprefix,security-headers@file"
+        - "traefik.http.middlewares.sudocu-mpc-stripprefix.stripprefix.prefixes=/sudocu/mpc"
+        - "traefik.http.middlewares.sudocu-mpc-redirectregex.redirectregex.regex=^https://uunn.local/sudocu/mpc$$"
+        - "traefik.http.middlewares.sudocu-mpc-redirectregex.redirectregex.replacement=https://uunn.local/sudocu/mpc/"
+        - "traefik.http.routers.sudocu-mpc.tls=true"
+        - "traefik.http.routers.sudocu-mpc.service=sudocu-mpc"
+        - "traefik.http.services.sudocu-mpc.loadbalancer.server.port=3015"
+
+  # BACKEND
+  api-server:
+    image: ungs/sudocu-api-server:1.3.9
+    #env_file:
+    #  - sudocu.env
+    environment:
+      TZ: "America/Buenos_Aires"
+    # REEMPLAZAR POR VARIABLES DE ENTORNO
+    configs:
+      - source: api-server_config
+        target: /app/config.json
+      - source: usuarios_idp_saml_cert
+        target: /app/certificado_idp.crt
+    secrets:
+      - sudocu-api-server
+    volumes:
+      - files:/app/sudocu-files
+      - tmp:/sudocu_tmp
+    networks:
+      backend:
+      traefik-public:
+      red-siu:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 1024M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.sudocu-apiserver.entrypoints=web-secured"
+        - "traefik.http.routers.sudocu-apiserver.rule=Host(`uunn.local`) && PathPrefix(`/sudocu/api`)"
+        - "traefik.http.routers.sudocu-apiserver.middlewares=sudocu-apiserver-stripprefix"
+        - "traefik.http.middlewares.sudocu-apiserver-stripprefix.stripprefix.prefixes=/sudocu/api"
+        - "traefik.http.routers.sudocu-apiserver.tls=true"
+        - "traefik.http.routers.sudocu-apiserver.service=sudocu-apiserver"
+        - "traefik.http.services.sudocu-apiserver.loadbalancer.server.port=8080"
+        # CONFIGURACION WEBSOCKET
+        - "traefik.http.routers.sudocu-apiserver-websocket.entrypoints=web-secured"
+        - "traefik.http.routers.sudocu-apiserver-websocket.rule=Host(`uunn.local`) && PathPrefix(`/sudocu/socket.io`) && Query(`transport=websocket`)"
+        # - "traefik.http.routers.sudocu-apiserver-websocket.middlewares=sudocu-apiserver-websocket-stripprefix"
+        # - "traefik.http.middlewares.sudocu-apiserver-websocket-stripprefix.stripprefix.prefixes=/sudocu"
+        - "traefik.http.routers.sudocu-apiserver-websocket.tls=true"
+        - "traefik.http.routers.sudocu-apiserver-websocket.service=sudocu-apiserver-websocket"
+        - "traefik.http.services.sudocu-apiserver-websocket.loadbalancer.server.port=8080"
+
+  cache:
+    image: redis:6.2.6-alpine
+    command: redis-server --requirepass redis
+    environment:
+      TZ: "America/Buenos_Aires"
+    networks:
+       backend:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.20'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 64M
+
+  pdf:
+    image: browserless/chrome:1.50-chrome-stable
+    environment:
+      - MAX_CONCURRENT_SESSIONS=5
+      - MAX_QUEUE_LENGTH=400
+      - PREBOOT_CHROME=true
+    networks:
+      backend:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 2048M
+
+configs:
+  gestion_config:
+    file: ./config/config-sudocu-gestion.json
+  login_config:
+    file: ./config/config-sudocu-login.json
+  mpd_config:
+    file: ./config/config-sudocu-mpd.json
+  mpc_config:
+    file: ./config/config-sudocu-mpc.json
+  api-server_config:
+    file: ./config/config-api-server.json
+  usuarios_idp_saml_cert:
+    external: true
+
+secrets:
+  sudocu-api-server:
+      external: true
+
+networks:
+  backend:
+  traefik-public:
+    external: true
+  red-siu:
+    external: true
+
+volumes:
+  files:
+  tmp:

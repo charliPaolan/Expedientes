@@ -1,0 +1,100 @@
+version: '3.8'
+services:
+  memcached-server:
+    image: bitnami/memcached:1.6.6
+    #environment: 
+    #   MEMCACHED_CACHE_SIZE: 64 # size en megas
+    networks:
+      internal:
+    deploy:
+      mode: replicated
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 70M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 4
+        window: 120s
+  webapp:
+    image: hub.siu.edu.ar:5005/siu/expedientes/huarpe-core:v3.0.2
+    configs:
+      - source: huarpe_framework_yml
+        target: /usr/local/app/config/packages/prod/framework.yml
+      - source: usuarios_idp_saml_cert
+        target: /usr/local/app/config/idp.crt
+      - source: huarpe_php_ini
+        target: /etc/php7/conf.d/siu.ini
+    secrets:
+      - docs_api_pass
+      - huarpe_usuarios_pass
+      - huarpe_secret
+    env_file:
+      - ./huarpe.env   
+    entrypoint:
+      - /bin/sh
+    command:
+      - -c
+      - | 
+        bin/console cache:clear --env=prod
+        /entrypoint.sh --serve
+    networks:
+      internal:
+      traefik-public:
+      red-siu:
+    healthcheck:
+      test: ["CMD-SHELL", "(nc -z localhost 80) || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 80M
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 4
+        window: 120s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.huarpe.entrypoints=web-secured"
+        - "traefik.http.routers.huarpe.rule=Host(`uunn.local`) && (Path(`/`) || PathPrefix(`/saml`, `/js`, `/img`, `/bloque`, `/css`, `/perfil`, `/avatar`, `/bundles`, `/fonts`, `/aplicaciones`, `/build`, `/favicon.ico`, `/robots.txt`, `/servicios`))"
+        - "traefik.http.routers.huarpe.tls=true"
+        - "traefik.http.routers.huarpe.middlewares=huarpe-headers,security-headers@file"
+        - "traefik.http.middlewares.huarpe-headers.headers.contentSecurityPolicy=upgrade-insecure-requests"
+        - "traefik.http.services.huarpe.loadbalancer.server.port=80"
+configs:
+  usuarios_idp_saml_cert:
+    external: true
+  huarpe_php_ini:
+    file: ./huarpe_php.ini
+  huarpe_framework_yml:
+    file: ./huarpe_framework.yml
+
+secrets:
+  huarpe_secret:
+    external: true
+  docs_api_pass:
+    external: true
+  huarpe_usuarios_pass:
+    external: true
+
+networks:
+  internal:
+  traefik-public:
+    external: true
+  red-siu:
+    external: true

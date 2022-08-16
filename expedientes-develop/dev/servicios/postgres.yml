@@ -1,0 +1,68 @@
+version: '3.7'
+
+# require estas envars definidas en el entorno
+# SUBDOMINIO
+# ejemplo: https://uunn.local
+# > SUBDOMINIO=uunn
+services:
+  db-siu:
+    image: hub.siu.edu.ar:5005/siu/expedientes/arai-usuarios/db:v3.1.0
+    environment:
+      TZ: "America/Buenos_Aires"
+      POSTGRES_PASSWORD_FILE: /run/secrets/usuarios_db_pass
+    volumes:
+      - volumen_pg_usuarios:/var/lib/postgresql/data
+    secrets:
+      - usuarios_db_pass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      start_period: 3s
+      retries: 5
+    networks:
+      red-siu:
+
+  db-docs:
+    image: hub.siu.edu.ar:5005/siu/expedientes/arai-documentos/db:1.3.0
+    environment:
+      TZ: "America/Buenos_Aires"
+      POSTGRES_PASSWORD_FILE: /run/secrets/docs_db_pass
+    volumes:
+      - volumen_pg_docs:/var/lib/postgresql/data
+    secrets:
+      - docs_db_pass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      start_period: 3s
+      retries: 5
+    networks:
+      red-siu:
+
+  db-sudocu:
+    image: ungs/sudocu-db:1.3.9
+    volumes:
+      - volumen_pg_sudocu:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: sudocu
+      POSTGRES_PASSWORD: postgres
+      TZ: "America/Buenos_Aires"
+    networks:
+      red-siu:
+
+secrets:
+  usuarios_db_pass:
+    external: true
+  docs_db_pass:
+    external: true
+  
+volumes:
+  volumen_pg_usuarios:
+  volumen_pg_docs:
+  volumen_pg_sudocu:
+
+networks:
+  red-siu:
+    external: true

@@ -1,0 +1,35 @@
+version: '3.7'
+
+# require estas envars definidas en el entorno
+# SUBDOMINIO
+# ejemplo: https://uunn.local
+# > SUBDOMINIO=uunn
+services:
+  db-proveedores:
+    image: gitlab.siu.edu.ar:5005/siu-arai/arai-proveedores/db:develop
+    environment:
+      TZ: "America/Buenos_Aires"
+      POSTGRES_PASSWORD_FILE: /run/secrets/proveedores_db_pass
+    volumes:
+      - volumen_pg_proveedores:/var/lib/postgresql/data
+    secrets:
+      - proveedores_db_pass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      start_period: 3s
+      retries: 5
+    networks:
+      red-siu:
+
+secrets:
+  proveedores_db_pass:
+    external: true
+  
+volumes:
+  volumen_pg_proveedores:
+  
+networks:
+  red-siu:
+    external: true

@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  idm:
+    image: hub.siu.edu.ar:5005/siu/expedientes/arai-usuarios/idm:v3.1.10
+    env_file: 
+      - ../usuarios.env
+    secrets:
+      - usuarios_db_pass
+      - usuarios_ldap_admin_pass
+      - usuarios_pass_salt
+      - usuarios_idp_simplesaml_admin
+    volumes:
+      - ./files:/tmp/config_exportada
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [ node.labels.cmd == usuarios ]
+      restart_policy:
+        condition: none
+    entrypoint: bash
+    command:
+      - -c
+      - | 
+        /entrypoint.sh --verificar
+    networks:
+      internal:
+      red-siu:
+
+secrets:
+  usuarios_db_pass:
+    external: true
+  usuarios_ldap_admin_pass:
+    external: true
+  usuarios_pass_salt:
+    external: true
+  usuarios_idp_simplesaml_admin:
+    external: true
+
+networks:
+  internal:
+    # Chequear nombre de red del stack de usuarios via 'docker network', debe coincidir
+    name: usuarios_internal
+    external: true
+  red-siu:
+    external: true

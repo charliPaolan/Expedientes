@@ -1,0 +1,52 @@
+{
+  "version-1.3.0-docs": {
+    "Introducción": [
+      "version-1.3.0-arquitectura",
+      "version-1.3.0-instalacion",
+      "version-1.3.0-servicios-base",
+      "version-1.3.0-firmador-standalone"
+    ],
+    "Despliegue en Docker Swarm": [
+      "version-1.3.0-repo-config",
+      "version-1.3.0-redes",
+      "version-1.3.0-logs",
+      "version-1.3.0-arai",
+      "version-1.3.0-sudocu"
+    ],
+    "Temas complementarios": [
+      "version-1.3.0-seguridad",
+      "version-1.3.0-rendimiento",
+      "version-1.3.0-discovery",
+      {
+        "type": "subcategory",
+        "label": "Guias",
+        "ids": [
+          "version-1.3.0-guia-cambio-dominio",
+          "version-1.3.0-guia-portainer",
+          "version-1.3.0-guia-nfs-swarm",
+          "version-1.3.0-guia-config-nfs",
+          "version-1.3.0-guia-backup-nfs",
+          "version-1.3.0-guia-aumentando-recursos"
+        ]
+      }
+    ],
+    "Integración con módulos SIU": [
+      "version-1.3.0-diaguita",
+      "version-1.3.0-pilaga",
+      "version-1.3.0-proveedores",
+      "version-1.3.0-sq-nucleo",
+      "version-1.3.0-guarani",
+      "version-1.3.0-kolla",
+      "version-1.3.0-mapuche",
+      "version-1.3.0-tehuelche"
+    ],
+    "Actualizar versiones previas": [
+      "version-1.3.0-1.0-to-1.1",
+      "version-1.3.0-1.1-to-1.2",
+      "version-1.3.0-1.2-to-1.3"
+    ],
+    "Novedades": [
+      "version-1.3.0-changelog"
+    ]
+  }
+}

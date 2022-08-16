@@ -1,0 +1,4 @@
+openssl req -x509 -out uunn.local.crt -keyout uunn.local.key \
+  -newkey rsa:2048 -nodes -sha256 \
+  -subj '/CN=uunn.local' -extensions EXT -config <( \
+   printf "[dn]\nCN=uunn.local\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:uunn.local\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")

@@ -1,0 +1,5 @@
+docker build --tag docs-expedientes .
+docker tag docs-expedientes hub.siu.edu.ar:5005/siu/expedientes/docs:latest
+docker run --rm -p 8280:80 docs-expedientes
+docker push hub.siu.edu.ar:5005/siu/expedientes/docs:latest
+

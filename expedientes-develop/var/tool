@@ -1,0 +1,88 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+BASE_DIR=${DIR}/..
+BASE_REGISTRY_HUB=hub.siu.edu.ar:5005/siu/expedientes
+set -e
+source ${DIR}/libutils.sh || exit 1
+
+function repush() {
+    ORIGEN=$1
+    IMAGE=$(basename $ORIGEN)
+    DESTINO=$(echo $ORIGEN | \
+        sed "s#gitlab.siu.edu.ar:5005/siu-arai#$BASE_REGISTRY_HUB#" | \
+        sed "s#ungs/#$BASE_REGISTRY_HUB/sudocu/#" \
+    )
+    echo "> Repush $IMAGE"
+    CMD_PULL="docker pull $ORIGEN"
+    CMD_TAG="docker tag $ORIGEN $DESTINO"
+    CMD_PUSH="docker push $DESTINO"
+    if [[ "$2" == "--upload" ]]; then
+        eval $CMD_PULL
+        eval $CMD_TAG
+        eval $CMD_PUSH
+    else
+        echo ">> Hubiera ejecutado:"
+        echo $CMD_PULL
+        echo $CMD_TAG
+        echo $CMD_PUSH
+    fi
+    printf "\n"
+}
+
+usage="$(basename "$0") [subject]
+
+Utilidades para manejar este repo.
+Hay que tener instalado:
+ * https://kislyuk.github.io/yq/
+ * jq
+ * docker >= 19.03
+
+-h | --help            Muestra esta ayuda
+lsimg                | Busca todas las imagenes en el repo
+repush [--upload]    | Repushea imagenes de SIU y UNGS hacia HUB. Por defecto no sube, lo hace con --upload
+change-repo          | Reapunta imagenes UNGS hacia HUB
+"
+
+
+selector=$1 
+shift || true
+
+case "$selector" in
+  lsimg)
+    find ${BASE_DIR}/prod -type f -name "*.yml" \
+        -exec yq -r '.services[]? | .image' {} + \
+        | sort | uniq
+    ;;
+  repush)
+    UPLOAD=$1
+    IMAGE_LIST=$(find ${BASE_DIR}/prod -type f -name "*.yml" \
+        -exec yq -r '.services[]? | select( .image | test("gitlab|sudocu")) | .image' {} + \
+        | sort | uniq)
+    while IFS= read -r line; do
+        repush $line $UPLOAD
+    done <<< "$IMAGE_LIST"
+    ;;
+  change-repo)
+    find ${BASE_DIR}/prod -type f -name "*.yml" \
+        -exec sed -i 's#ungs/#hub.siu.edu.ar:5005/siu/expedientes/sudocu/#g' {} \;
+        #-exec sed -i 's#gitlab.siu.edu.ar:5005/siu-arai/#hub.siu.edu.ar:5005/siu/expedientes/#g' {} \;
+    ;;
+  -h|--help)
+    echo " va $usage"
+    exit 1
+    ;;
+  *)
+    echo "$usage"
+    exit 1
+    ;;
+esac
+#if [[ "$OSTYPE" == "darwin"* ]]; then
+#    XARGS_REPLACE_FLAG="-I X"
+#    XARGS_REPLACE_STR="X"
+#    #xargs -I X docker inspect "X" --format='{{.Status.State}}'
+#else
+#    XARGS_REPLACE_FLAG="-i"
+#    XARGS_REPLACE_STR="{}"
+#    #xargs -i docker inspect {} --format='{{.Status.State}}'
+#fi
+

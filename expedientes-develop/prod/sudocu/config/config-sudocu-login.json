@@ -1,0 +1,27 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": "4000",
+    "secure": false,
+    "clusters": false,
+    "apiUrl": "https://uunn.local/sudocu/api",
+    "urlHome": "https://uunn.local/sudocu",
+    "livereload": "35800",
+    "urlLogout": "https://uunn.local/idp/saml2/idp/SingleLogoutService.php?ReturnTo=https://uunn.local/sudocu/#!/sso/logout_local"
+  },
+  "cookiesOptions": {
+    "path": "/",
+    "domain": "uunn.local",
+    "secure": false
+  },
+  "crts": {
+    "ca": "/etc/ssl/crt/sudocu.ca-bundle",
+    "key": "/etc/ssl/crt/",
+    "cert": "/etc/ssl/crt/"
+  },
+  "links": {
+    "gestion": "https://uunn.local/sudocu/gestion/",
+    "mpd": "https://uunn.local/sudocu/mpd/",
+    "config": "https://uunn.local/sudocu/mpc/"
+  }
+}

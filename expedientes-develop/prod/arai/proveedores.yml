@@ -1,0 +1,56 @@
+version: '3.8'
+services:
+  api:
+    image: hub.siu.edu.ar:5005/siu/expedientes/proveedores-api:1.0.1
+    env_file: 
+      - ./proveedores.env
+    secrets:
+      - proveedores_api_pass
+      - proveedores_db_pass
+      - proveedores_conexion_usuarios
+    healthcheck:
+      test: ["CMD-SHELL", "(nc -z localhost 80) || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+    networks:
+      traefik-public:
+      red-siu:
+        aliases:
+          - proveedores-api
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 50M
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 4
+        window: 120s
+      labels:
+#        - "traefik.enable=true"
+#        - "traefik.http.routers.proveedores.entrypoints=web-secured"
+#        - "traefik.http.routers.proveedores.rule=Host(`uunn.local`) && PathPrefix(`/proveedores`)"
+#        - "traefik.http.routers.proveedores.tls=true"
+#        - "traefik.http.services.proveedores.loadbalancer.server.port=80"
+#        - "traefik.http.routers.proveedores.middlewares=security-headers@file"
+  
+secrets:
+  proveedores_api_pass:
+    external: true
+  proveedores_db_pass:
+    external: true
+  proveedores_conexion_usuarios:
+    external: true
+networks:
+  traefik-public:
+    external: true
+  red-siu:
+    external: true

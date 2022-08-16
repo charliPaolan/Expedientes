@@ -1,0 +1,326 @@
+{
+  "organismo": {
+    "codigo": 800,
+    "nombre": "Universidad Nacional",
+    "sigla": "UUNN"
+  },
+  "servidor": {
+    "path": "/sudocu/",
+    "host": "0.0.0.0",
+    "subdomain": "",
+    "domain": "uunn.local",
+    "port": "8080",
+    "seguro": {
+      "habilitado": false,
+      "certificados": {
+        "ca": "",
+        "cert": "",
+        "key": ""
+      },
+      "cookies": {
+        "secure": true,
+        "maxAge": 3600000,
+        "sameSite": "none"
+      }
+    },
+    "websocket": {
+      "path": "/sudocu/socket.io",
+      "secure": true,
+      "cookie": {
+        "name": "test",
+        "httpOnly": false,
+        "path": ""
+      }
+    },
+    "firebase": false,
+    "environment": "production"
+  },
+  "reverse_proxy": {
+    "seguro": true
+  },
+  "debug": {
+    "SQL": false,
+    "verbose": false
+  },
+  "auth": {
+    "providers": {
+      "basic": {
+        "user": "integracion",
+        "challenge": true,
+        "realm": ""
+      },
+      "local": {
+        "habilitado": false
+      },
+      "twitter": {
+        "habilitado": false,
+        "consumerKey": "consumerKey",
+        "consumerSecret": "consumerSecret"
+      },
+      "facebook": {
+        "habilitado": false,
+        "clientID": "clientID",
+        "clientSecret": "clientSecret"
+      },
+      "google": {
+        "habilitado": false,
+        "clientID": "clientID",
+        "clientSecret": "clientSecret"
+      },
+      "saml": {
+        "identifier": "uniqueIdentifier",
+        "crearSiNoExiste": true,
+        "habilitacionAutomatica": true,
+        "perfilXDefecto": 3,
+        "claustroXDefecto": "ND",
+        "habilitado": true,
+        "entryPoint": "https://uunn.local/idp/saml2/idp/SSOService.php",
+        "logoutUrl": "https://uunn.local/idp/saml2/idp/SingleLogoutService.php?ReturnTo=https://uunn.local/sudocu/",
+        "cert_pem": "/app/certificado_idp.crt"
+      }
+    }
+  },
+  "repositorios": {
+    "documentos": "arai",
+    "adjuntos": "filesystem",
+    "arai": {
+      "url_notificacion": "http://api-server:8080/integracion/notificacion",
+      "url": "http://docs-api/docs/rest/backend/documentos",
+      "username": "documentos",
+      "id_instalacion": "sudocu"
+    }
+  },
+  "firma": {
+    "modelo_autorizacion": "siu",
+    "api": "http://docs-api/docs/rest/backend",
+    "api_front": "https://uunn.local/docs/rest/frontend",
+    "username": "documentos"
+  },
+  "filesystem": {
+    "rootFolder": "/app/sudocu-files/",
+    "cacheFolder": "/app/sudocu-files/cache"
+  },
+  "ungsxt": {
+    "host": "db-sudocu",
+    "port": "5432",
+    "database": "sudocu",
+    "user": "postgres",
+    "max": 20,
+    "idleTimeoutMillis": 30000,
+    "connectionTimeoutMillis": 2000,
+    "statement_timeout": 30000,
+    "query_timeout": 20000
+  },
+  "nuxeo": {
+    "api": "http://sudocu.local:8081/nuxeo/api/v1",
+    "admin": {
+      "username": "Administrator"
+    },
+    "host": "http://sudocu.local:8081/nuxeo/",
+    "cmis": "http://sudocu.local:8081/nuxeo/json/cmis"
+  },
+  "token": {
+    "algorithm": "",
+    "secret": ""
+  },
+  "carpetas": {
+    "archivos": "/sudocu_tmp"
+  },
+  "alertas": {
+    "traceinconsole": false,
+    "rawinmessage": false,
+    "telegram": {
+      "_comment": "https://www.npmjs.com/package/messaging-api-telegram",
+      "enabled": false,
+      "login": false,
+      "token": "",
+      "chat_id_prod": "",
+      "chat_id_testing": ""
+    },
+    "email": {
+      "enabled": false,
+      "dev": {
+        "_comment": "https://stackoverflow.com/questions/24098461/nodemailer-gmail-what-exactly-is-a-refresh-token-and-how-do-i-get-one",
+        "destinatario": "",
+        "client_id": "",
+        "client_secret": "",
+        "refresh_token": "",
+        "auth": {
+          "user": ""
+        }
+      }
+    }
+  },
+  "email": {
+    "seguimientos": {
+      "_notificaciones_ejemplo": {
+        "asunto": "$novedad ($tipo)",
+        "cuerpo": "Tipo: $tipo<br/>Número: $numero <br/>Carátula: $caratula<br/>Area y usuario de origen: $area_usuario_origen <br/>Novedad: $novedad<br/>Estado: $estado<br/>link: $permalink<br/>",
+        "escenarios": "remitir|enviar|solicitar|autorizar|rechazar|compartir"
+      },
+      "notificaciones": {
+        "asunto": "",
+        "cuerpo": "",
+        "escenarios": "",
+        "novedades": {
+          "remitir": "Se remite un expediente",
+          "enviar": "Se envía un documento",
+          "solicitar": "Solicitud de autorización",
+          "autorizar": "Solicitud autorizada",
+          "rechazar": "Rechazo solicitud de autorización",
+          "compartir": "Se comparte un documento"
+        }
+      },
+      "_comment": "Modo puede ser smtp o gmail",
+      "modo": "smtp",
+      "smtp": {
+        "remitente": "",
+        "host": "",
+        "port": "",
+        "secure": "",
+        "auth": {
+          "user": "",
+          "pass": ""
+        }
+      },
+      "gmail": {
+        "remitente": "",
+        "client_id": "",
+        "client_secret": "",
+        "refresh_token": "",
+        "auth": {
+          "user": ""
+        }
+      }
+    }
+  },
+  "redis": {
+    "host": "cache",
+    "port": 6379,
+    "db": "UNGSxt",
+    "ttl": 28800,
+    "options": {}
+  },
+  "firebase_admin": {
+    "databaseURL": ""
+  },
+  "pdf": {
+    "host": "http://pdf:3000"
+  },
+  "blockchain": {
+    "habilitado": false,
+    "stampURL": "https://tsaapi-test.bfa.ar/api/tsa/stamp/",
+    "verifyURL": "https://tsaapi-test.bfa.ar/api/tsa/verify/"
+  },
+  "whitelist": [
+    8080,
+    8181,
+    8383,
+    443
+  ],
+  "documentos": {
+    "_comment": "recepcion por vista o por edicion",
+    "recepcion": "vista",
+    "google_analytics": {
+      "habilitado": false,
+      "id": ""
+    }
+  },
+  "archivos": {
+    "vista_previa": {
+      "_limite_previsualizacion": "numero entero, representa el total en MB de las primeras hojas en la vista previa ",
+      "limite_previsualizacion": 1
+    },
+    "merge_tool": "gs",
+    "merge_skip_error": false,
+    "lectura_firmas": {
+      "_comment": "El valor de max_file_mb solo se toma en cuenta si stamper_host es null y por lo tanto se utiliza verifyPDF para lectura de las firmas. De otro modo, si el valor de stamper_host apunta a un servicio de stamper válido este no tiene limitaciones de tamaño.",
+      "_max_file_mb": "Se recomienda no utilizar mas de 20mb",
+      "max_file_mb": -1,
+      "stamper_host": "",
+      "_stamper_host": "Se recomienda cuando los adjuntos son mayores a 20mb"
+    }
+  },
+  "gestion": {
+    "reutilizar_numeros_documentos_anulados": false,
+    "recaratular": {
+      "_creador": "boolean permite o no al creador de un documento recaratular",
+      "creador": false
+    },
+    "transformacion": {
+      "_hereda_visibilidad": "true: la visibilidad del documento resultante tendra la del original, false: la visibilidad sera la del tipo de documento resultante",
+      "hereda_visibilidad": true
+    },
+    "incorporar_expedientes": true,
+    "expedientes": {
+      "asociacion": {
+        "_alcance": "area_activa / areas_usuario / global",
+        "alcance": "global"
+      },
+      "limite_tamanio_vista_previa_expedientes": -1,
+      "incorporar_mismo_documento_n_veces": true,
+      "mostrar_alerta_documento_ya_existente": false
+    },
+    "busqueda": {
+      "esencias": {
+        "documento": ["privado", "publico"],
+        "tramite": ["privado", "publico"],
+        "contenedor": ["privado", "publico"]
+      }
+    },
+    "expediente_papel_fojas": true,
+    "integracion": {
+      "esencias": ["contenedor"]
+    },
+    "anti_flood_ms": 100,
+    "ver_expedientes_enviados": false,
+    "agregar_seguimiento_docs_compartidos": false,
+    "vista_rapida_descargar": "siempre",
+    "mostrar_validez": true,
+    "contar_novedades": true,
+    "permitir_usar_fojas_remision_contenedor_tramite": false,
+    "archivo_principal": true,
+    "permite_eliminar_seguimientos": true,
+    "archivos_adjuntos": {
+      "max_mb": 10,
+      "sum_max_mb": 10,
+      "max_cant": 10
+    },
+    "herramientas_vistas": {
+      "documentos": {
+        "anular": true
+      },
+      "compartidos": {
+        "vista_previa": false
+      },
+      "busqueda": {
+        "compartir": false,
+        "vista_avanzada": false,
+        "descargar": false,
+        "abrir": false,
+        "mapa": false
+      }
+    },
+    "fonts": [
+      {
+        "name": "Oswald=oswald",
+        "style": "https://fonts.googleapis.com/css2?family=Oswald&display=swap"
+      }
+    ]
+  },
+  "admin": {
+    "logged_users_refresh_rate": 30,
+    "notificaciones_delay": 100,
+    "jobs_timer": "0 */1 * * * *"
+  },
+  "imagemin": {
+    "width_pixels": 790,
+    "jpeg_quality": 50
+  },
+  "http-proxy": {
+    "service": {
+      "target": "",
+      "auth": "user:password"
+    }
+  }
+}

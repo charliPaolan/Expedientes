@@ -1,0 +1,30 @@
+{
+  "version-1.0.9-docs": {
+    "Introducción": [
+      "version-1.0.9-arquitectura",
+      "version-1.0.9-instalacion",
+      "version-1.0.9-servicios-base",
+      "version-1.0.9-firmador-standalone"
+    ],
+    "Despliegue en Docker Swarm": [
+      "version-1.0.9-repo-config",
+      "version-1.0.9-redes",
+      "version-1.0.9-logs",
+      "version-1.0.9-arai",
+      "version-1.0.9-sudocu"
+    ],
+    "Integración con otros módulos SIU": [
+      "version-1.0.9-diaguita",
+      "version-1.0.9-pilaga",
+      "version-1.0.9-proveedores",
+      "version-1.0.9-sq-nucleo",
+      "version-1.0.9-guarani",
+      "version-1.0.9-kolla",
+      "version-1.0.9-mapuche",
+      "version-1.0.9-tehuelche"
+    ],
+    "CHANGELOG": [
+      "version-1.0.9-changelog"
+    ]
+  }
+}

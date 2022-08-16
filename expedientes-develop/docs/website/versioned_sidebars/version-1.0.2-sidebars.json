@@ -1,0 +1,23 @@
+{
+  "version-1.0.2-docs": {
+    "Introducción": [
+      "version-1.0.2-arquitectura",
+      "version-1.0.2-instalacion",
+      "version-1.0.2-servicios-base"
+    ],
+    "Despliegue en Docker Swarm": [
+      "version-1.0.2-repo-config",
+      "version-1.0.2-redes",
+      "version-1.0.2-logs",
+      "version-1.0.2-arai",
+      "version-1.0.2-sudocu"
+    ],
+    "Integración con otros módulos SIU": [
+      "version-1.0.2-diaguita",
+      "version-1.0.2-pilaga"
+    ],
+    "CHANGELOG": [
+      "version-1.0.2-changelog"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+version: '3.7'
+
+# require estas envars definidas en el entorno
+# SUBDOMINIO
+# ejemplo: https://uunn.local
+# > SUBDOMINIO=uunn
+services:
+  mailcatcher:
+    image: citizensadvice/mailcatcher
+    networks:
+      red-siu:
+      traefik-public:
+    entrypoint:
+      - /bin/sh
+    command:
+      - -c
+      - mailcatcher --foreground --ip 0.0.0.0 --http-path /mailcatcher
+    deploy:
+      mode: replicated
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 25M
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 4
+        window: 120s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.mailcatcher.entrypoints=web-secured"
+        - "traefik.http.routers.mailcatcher.rule=Host(`uunn.local`) && PathPrefix(`/mailcatcher`)"
+        - "traefik.http.routers.mailcatcher.tls=true"
+        - "traefik.http.routers.mailcatcher.service=mailcatcher"
+        - "traefik.http.services.mailcatcher.loadbalancer.server.port=1080"
+        - "traefik.http.routers.mailcatcher.middlewares=security-headers@file"
+        - "traefik.http.routers.mailcatcher-resources.entrypoints=web-secured"
+
+
+networks:
+  red-siu:
+    external: true
+  traefik-public:
+    external: true

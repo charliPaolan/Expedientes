@@ -1,0 +1,79 @@
+version: '3.7'
+services:
+  reverse-proxy:
+    image: traefik:2.5
+    ports:
+      - "80:80"
+      - "443:443"
+    configs:
+      - source: traefik_security
+        target: /etc/traefik/security.toml
+    command:
+      - --api.insecure=false # set to 'false' on production
+      - --api.dashboard=false 
+      - --api.debug=false # enable additional endpoints for debugging and profiling
+      - --log.level=INFO # debug while we get it working, for more levels/info see https://docs.traefik.io/observability/logs/
+      - --providers.docker=true
+      - --providers.docker.swarmMode=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=traefik-public
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entryPoint.to=web-secured
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --entrypoints.web-secured.address=:443
+      - --providers.file=true
+      - --providers.file.directory=/etc/traefik
+      - --certificatesresolvers.le-uunn-local.acme.email=admin-dom@examples.com
+      - --certificatesresolvers.le-uunn-local.acme.storage=/certs/acme-uunn-local.json
+      - --certificatesresolvers.le-uunn-local.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.le-traefik-uunn-local.acme.email=admin-dom@examples.com
+      - --certificatesresolvers.le-traefik-uunn-local.acme.storage=/certs/acme-traefik-uunn-local.json
+      - --certificatesresolvers.le-traefik-uunn-local.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.le-uunn-local.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.le-traefik-uunn-local.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.traefik-public-https.rule=Host(`uunn.local`)"
+        - "traefik.http.routers.traefik-public-https.entrypoints=web-secured"
+        - "traefik.http.routers.traefik-public-https.tls=true"
+        # Use the "le" (Let's Encrypt) resolver created above
+        - "traefik.http.routers.traefik-public-https.tls.certresolver=le-uunn-local"
+        # Dasboard
+        - "traefik.http.routers.api.rule=Host(`traefik.uunn.local`)"
+        - "traefik.http.routers.api.entrypoints=web-secured"
+        - "traefik.http.routers.api.tls=true"
+        - "traefik.http.routers.api.tls.certresolver=le-traefik-uunn-local"
+        - "traefik.http.routers.api.service=api@internal"
+        - "traefik.http.routers.api.middlewares=auth"
+        - "traefik.http.middlewares.auth.basicauth.users=traefik:$$apr1$$dnWXJLm2$$SjBVFASeSNqXcQweOMmlh0"
+          # Dummy service for Swarm port detection. The port can be any valid integer value.
+        - "traefik.http.services.dummy-svc.loadbalancer.server.port=9999"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - traefik-certs:/certs
+    networks:
+      traefik-public:
+
+configs:
+  traefik_security:
+    file: ./security.toml
+
+volumes:
+  traefik-certs:
+  # traefik-certs: # ejemplo con nfs
+  #   driver: local
+  #   driver_opts:
+  #     type: nfs
+  #     o: nfsvers=4,addr=170.210.46.29,rw
+  #     device: ":/var/nfsroot/certs"
+
+networks:
+  traefik-public:
+    external: true
+

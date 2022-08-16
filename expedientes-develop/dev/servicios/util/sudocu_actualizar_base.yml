@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  db_upgrade:
+    image: ungs/sudocu-db-instalador:1.1.9
+    env_file:
+      - ../../../prod/sudocu/sudocu.api.env    
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: none
+    networks:
+      red-siu:
+
+networks:
+  red-siu:
+    external: true

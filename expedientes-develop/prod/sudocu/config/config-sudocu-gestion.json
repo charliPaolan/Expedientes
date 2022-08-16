@@ -1,0 +1,28 @@
+{
+  "server": {
+    "path": "/sudocu/",
+    "host": "0.0.0.0",
+    "modName": "gestion",
+    "port": "3020",
+    "secure": false,
+    "clusters": false,
+    "apiUrl": "https://uunn.local/sudocu/api",
+    "socketUrl": "https://uunn.local/socket.gestion",
+    "socketPath": "/sudocu/socket.io",
+    "socketSecure": false,
+    "urlHome": "https://uunn.local/sudocu",
+    "livereload": "35720",
+    "contexto": "fr_sudocu_gestion",
+    "formato_fecha": "dd-MM-yyyy HH:mm",
+    "modelo_autorizacion": "siu"
+  },
+  "cookiesOptions": {
+    "domain": "uunn.local",
+    "secure": false
+  },
+  "crts": {
+    "ca": "/etc/ssl/crt/sudocu.ca-bundle",
+    "cert": "/etc/ssl/crt/",
+    "key": "/etc/ssl/crt/"
+  }
+}

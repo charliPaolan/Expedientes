@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  idm:
+    image: hub.siu.edu.ar:5005/siu/expedientes/arai-usuarios/idm:v3.1.10
+    env_file: 
+      - ../usuarios.env
+    secrets:
+      - usuarios_db_pass
+      - usuarios_ldap_admin_pass
+      - usuarios_pass_salt
+      - usuarios_idp_simplesaml_admin
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: none
+    entrypoint: bash
+    command:
+      - -c
+      - | 
+        source /entrypoint.sh --export-secrets
+        idm/bin/instalador proyecto:bootstrap --password ${ADMIN_PASS}
+    networks:
+      red-siu:
+
+secrets:
+  usuarios_db_pass:
+    external: true
+  usuarios_ldap_admin_pass:
+    external: true
+  usuarios_pass_salt:
+    external: true
+  usuarios_idp_simplesaml_admin:
+    external: true
+
+networks:
+  red-siu:
+    external: true

@@ -1,0 +1,54 @@
+version: '3.7'
+
+# require estas envars definidas en el entorno
+# SUBDOMINIO
+# ejemplo: https://uunn.local
+# > SUBDOMINIO=uunn
+services:
+  ldap:
+    image: siutoba/docker-openldap-arai:openldap-4
+    command: --copy-service --loglevel debug
+    secrets:
+      - usuarios_ldap_admin_pass
+      - usuarios_ldap_config_pass
+    volumes:
+      - volumen_ldap_data:/var/lib/ldap
+      - volumen_ldap_config:/etc/ldap/slapd.d
+    configs:
+      - source: estructura-custom
+        target: /container/service/slapd/assets/config/bootstrap/ldif/01-estructuraUsuarios.ldif
+    environment:
+      LDAP_ORGANIZATION: CIN
+      LDAP_DOMAIN: "unx.edu.ar"
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: "false"
+      LDAP_ADMIN_PASSWORD: admin123
+      LDAP_CONFIG_PASSWORD: admin123
+      # LDAP_ADMIN_PASSWORD_FILE: /run/secrets/usuarios_ldap_admin_pass
+      #LDAP_CONFIG_PASSWORD_FILE: /run/secrets/usuarios_ldap_config_pass
+    # healthcheck:
+    #   test: ["CMD-SHELL", 'ldapsearch -H ldap://127.0.0.1 -LLL -x -w "admin" -D "cn=admin,dc=unx,dc=edu,dc=ar" -b "ou=usuarios,dc=unx,dc=edu,dc=ar"']
+    #   interval: 10s
+    #   timeout: 5s
+    #   start_period: 3s
+    #   retries: 5
+    networks:
+      red-siu:
+
+secrets:
+  usuarios_ldap_admin_pass:
+    external: true
+  usuarios_ldap_config_pass:
+    external: true
+  
+volumes:
+  volumen_ldap_data:
+  volumen_ldap_config:
+
+
+configs:
+  estructura-custom:
+    file: ./01-estructuraUsuarios.ldif
+
+networks:
+  red-siu:
+    external: true

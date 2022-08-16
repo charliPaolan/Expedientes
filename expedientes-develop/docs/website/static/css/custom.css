@@ -1,0 +1,115 @@
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+ 
+/* your custom css */
+
+body {
+    /* font-family: 'Roboto'; */
+    /* font-family: 'Barlow', sans-serif; */
+    /* font-family: 'Ubuntu', sans-serif;   */
+    /* font-family: 'Dosis', sans-serif;   */
+}
+@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
+    h1, h2, h3, h4, h5, h6 {
+        margin-top: 0
+    }
+    .imageAlignTop .blockImage {
+        margin-bottom: 0px; 
+        margin-top: 25px;
+    }
+}
+
+@media only screen and (min-width: 1024px) {
+}
+
+@media only screen and (max-width: 1023px) {
+}
+
+@media only screen and (min-width: 1400px) {
+}
+
+@media only screen and (min-width: 1500px) {
+}
+.projectTitle {
+  /* font-family: 'Barlow', sans-serif;  */
+    margin-bottom: 0.5em;
+}
+.homeContainer .homeWrapper {
+    padding-bottom: 5px
+}
+
+table {
+    display: table
+}
+/* "Copy" code block button */
+pre {
+  position: relative;
+}
+
+pre .btnIcon {
+  position: absolute;
+  top: 4px;
+  z-index: 2;
+  cursor: pointer;
+  border: 1px solid transparent;
+  padding: 0;
+  color: #fff;
+  background-color: transparent;
+  height: 30px;
+  transition: all .25s ease-out;
+}
+
+pre .btnIcon:hover {
+  text-decoration: none;
+}
+
+.btnIcon__body {
+  align-items: center;
+  display: flex;
+}
+
+.btnIcon svg {
+  fill: currentColor;
+  margin-right: .4em;
+}
+
+.btnIcon__label {
+  font-size: 11px;
+}
+
+.btnClipboard {
+  right: 10px;
+}
+
+.imageAlignTop .blockImage {
+    max-width: none;
+}
+.container.paddingTop {
+    padding-top: 0;
+}
+
+.tagline {
+    font-size: 1.3em;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.nav-footer .sitemap .nav-home {
+    width: 300px; height: 48px;
+}
+.gridBlock .fourByGridBlock img {
+    max-width: 67%;
+}
+.container .gridBlock .blockContent p {
+    padding: 0;
+    margin: 0 auto;
+    max-width: 79%;
+}
+
+.separateOnPageNav .docsNavContainer {
+    flex: 0 0 280px;
+}
